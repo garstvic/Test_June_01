@@ -97,7 +97,9 @@ class RbcNewsParser
                         $data['date']=trim($date->text());
                     }
                     
-                    $data['short_description']=trim($short_description->text());
+                    if($short_description->count()){
+                        $data['short_description']=trim($short_description->text());
+                    }
 
                     $news_text='';
 

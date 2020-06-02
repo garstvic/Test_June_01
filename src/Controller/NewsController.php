@@ -23,10 +23,11 @@ class NewsController extends AbstractController
     /**
      * @Route("/news/{slug}",name="news_show")
      */
-    public function show()
+    public function show($slug,NewsRepository $news_repository)
     {
         return $this->render('news/show.html.twig', [
             'controller_name' => 'NewsController',
+            'news'=>$news_repository->findOneBy(array('id'=>$slug)),
         ]);        
     }
     

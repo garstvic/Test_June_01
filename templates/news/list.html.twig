@@ -6,7 +6,7 @@
             <div class="card-body">
               <h4>{{ news.title }}</h2>
               <h6>{{ news.shortdescription }}</h4>
-              <a href="#" class="card-link">Подробнее</a>
+              <a href="{{ path("news_show",{'slug': news.id}) }}" class="card-link btn btn-success">Подробнее</a>
             </div>
           </div>  
         </div>

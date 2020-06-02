@@ -2,19 +2,28 @@
 
 namespace App\Service;
 
+use App\Entity\News;
+use App\Repository\NewsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Client;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpFoundation\Response;
+
 
 class RbcNewsParser
 {
     private $client;
     private $crawler;
     private $url='https://www.rbc.ru';
+    private $entity_manager;
+    private $news_repository;
     
-    public function __construct()
+    public function __construct(EntityManagerInterface $entity_manager,NewsRepository $news_repository)
     {
         $this->client=new Client;
         $this->crawler=new Crawler(null,$this->url);
+        $this->entity_manager=$entity_manager;
+        $this->news_repository=$news_repository;
     }
     
     public function parse()
@@ -62,7 +71,7 @@ class RbcNewsParser
                         });
 
                     $data['short_description']=mb_substr($news_text_without_tags,0,200,'UTF-8');
-                    $data['text']=$news_text;
+                    $data['article']=$news_text;
                     
                     $img_crawler=$news_crawler->filter('.article__main-image__wrap > img');
 
@@ -70,7 +79,6 @@ class RbcNewsParser
                         $data['img']=$img_crawler->attr('src');
                     }
 
-                    return $data;
                 }
 
                 if (stripos($href,'/sport.') || 
@@ -102,7 +110,7 @@ class RbcNewsParser
                             }
                         });
 
-                    $data['text']=$news_text;
+                    $data['article']=$news_text;
                     
                     $img_crawler=$news_crawler->filter('.article__main-image__link > img');
 
@@ -115,16 +123,40 @@ class RbcNewsParser
                             $data['img']=$img_crawler->attr('src');
                         }
                     }
-
-                    return $data;
                 }
-
-                return [
-                    'title'=>trim($title->text()),
-                    'href'=>mb_substr($href,0,strpos($href,'?')),
-                ];
+                
+                $this->saveNews($data);
+                
+                return $data;
         });
         
         return $news_list;
+    }
+    
+    protected function saveNews($news)
+    {
+        if(!$this->news_repository->findOneBy(['title'=>$news['title']])){
+            $create_news=new News;
+            
+            $create_news->setTitle($news['title']);
+            
+            if(isset($news['short_description'])){
+                $create_news->setShortDescription($news['short_description']);
+            }
+            
+            if(isset($news['article'])){
+                $create_news->setArticle($news['article']);
+            }
+            
+            if(isset($news['img'])){
+                $create_news->setImg($news['img']);
+            }
+            
+            $create_news->setHref($news['href']);
+            
+            $this->entity_manager->persist($create_news);
+            
+            $this->entity_manager->flush();
+        }
     }
 }

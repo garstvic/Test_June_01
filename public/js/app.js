@@ -3,7 +3,7 @@ $(document).ready(function(){
         method: 'POST',
         url: '/ajax/get-news',
         success: function(data){
-            // $('.starter-template').html(data);
+            $('.starter-template').html(data);
         }
     });
 });

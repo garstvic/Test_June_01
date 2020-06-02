@@ -4,28 +4,11 @@
 
 {% block body %}
       <div class="starter-template">
-        <div class="container">
-          <div class="clearfix">
-            <div class="spinner-border float-center" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
+        <div class="clearfix">
+          <div class="spinner-border float-center" role="status">
+            <span class="sr-only">Loading...</span>
           </div>
-        {% for news in news_list %}
-            <div class="row justify-content-center">
-              <div class="col-md-8">
-                <div class="card">
-                  <div class="card-body">
-                    <h4>{{ news['title'] }}</h2>
-                    {% if news['short_description'] is defined %}
-                      <h6>{{ news['short_description'] }}</h4>
-                    {% else %}
-                    {% endif %}
-                    <a href="#" class="card-link">Подробнее</a>
-                  </div>
-                </div>  
-              </div>
-            </div>
-        {% endfor %}
-        </div>
+        </div>        
+        {% include 'news/list.html.twig' %}
       </div>
 {% endblock %}
